@@ -35,8 +35,8 @@
             <% } %>
             <% if (election.is_live) { %>
                 <h2 class="text-lg">This election has launched, and voters can access this URL:</h2>
-                <!-- DOMAIN/elections/1/vote -->
-                <a class="text-lg text-green-500 hover:text-green-800" href="<%= domain %>/elections/<%= election.id %>"><%= domain %>/elections/<%= election.id %></a>
+                <!-- DOMAIN/election/1/vote -->
+                <a class="text-lg text-green-500 hover:text-green-800" href="<%= domain %>/election/<%= election.id %>"><%= domain %>/election/<%= election.id %></a>
                 <br><br>
             <% } %>
             <h2 class="text-xl">Questions: </h2>
@@ -94,8 +94,25 @@
             <% } else { %>
                 <p>No candidates yet.</p>
             <% } %>
-            <a href="/election/<%= election.id %>/candidate/create" class="text-green-500 hover:text-green-800">Add
-                candidate</a>
+            <form action="/election/<%= election.id %>/voters" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="flex gap-2 py-4">
+                    <div class="flex-auto">
+                        <input type="text" class="border border-gray-300 text-gray-900 w-full rounded p-2 text-sm"
+                            name="voter_id" id="name" placeholder="Enter Voter ID" required>
+                    </div>
+                    <div class="flex-none">
+                        <!-- long description -->
+                        <textarea name="description" id="description" cols="30" rows="1"
+                            class="border border-gray-300 text-gray-900 w-full rounded p-2 text-sm"
+                            placeholder="Enter description"></textarea>
+                    </div>
+                    <div class="flex-none">
+                        <button type="submit"
+                            class="bg-green-600 text-white px-5 py-2 rounded font-medium mr-2 mb py-1.5">Add Question</button>
+                    </div>
+                </div>
+            </form>
             <br>
             <br>
             <a href="/election/<%= election.id %>/results" class="text-green-500 hover:text-green-800">Preview
