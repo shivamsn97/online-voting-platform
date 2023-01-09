@@ -24,8 +24,8 @@ Following is a list of features that should be implemented in the online voting 
 
 ## Admins can register voters
 
-- [ ] Admins should be able to register voters in an election.
-- [ ] When adding a voter, admins should enter a voter ID and a voter password.
+- [x] Admins should be able to register voters in an election.
+- [x] When adding a voter, admins should enter a voter ID and a voter password.
 
 ## Admins can launch an election
 

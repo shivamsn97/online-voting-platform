@@ -242,7 +242,7 @@ app.get("/election/:id", async (request, response) => {
   response.render("election/view", {
     csrfToken: request.csrfToken(),
     election: electionData,
-    candidates: all_voters,
+    voters: all_voters,
     questions: all_questions,
     domain: domain,
   });
@@ -271,6 +271,63 @@ app.post(
       election_id: electionId,
       description: description,
     });
+    response.redirect("/election/" + electionId);
+  }
+);
+
+app.post("/election/:id/voter", async (request, response) => {
+  const electionId = request.params.id;
+  const electionData = await election.findOne({
+    where: {
+      id: electionId,
+    },
+  });
+  if (!electionData) {
+    return response.status(404).send("Election not found");
+  }
+  const voter_id = request.body.voter_id;
+  const password = request.body.voter_password;
+  if (!voter_id || !password) {
+    request.flash("error", "Please fill in all fields");
+    return response.redirect("/election/" + electionId);
+  }
+  // create voter with hashed password
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  await voters.create({
+    voter_id: voter_id,
+    password: hashedPassword,
+    election_id: electionId,
+  });
+  response.redirect("/election/" + electionId);
+});
+
+app.delete(
+  "/election/:id/voter/:voter_id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const electionId = request.params.id;
+    const electionData = await election.findOne({
+      where: {
+        id: electionId,
+      },
+    });
+    if (!electionData) {
+      return response.status(404).send("Election not found");
+    }
+    if (!request.user || electionData.user_id !== request.user.id) {
+      return response.status(403).send("Unauthorized");
+    }
+    const voterId = request.params.voter_id;
+    await voters.destroy({
+      where: {
+        id: voterId,
+      },
+    });
+    if (request.headers["content-type"] === "application/json") {
+      return response.json({
+        success: true,
+      });
+    }
     response.redirect("/election/" + electionId);
   }
 );
