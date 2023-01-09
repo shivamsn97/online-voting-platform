@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>Create Election</title>
+</head>
+
+<body>
+    <div class="grid grid-cols-6">
+        <div class="col-start-3 col-span-2">
+            <%- include('../header.ejs') %>
+            <br>
+            <h1 class="text-2xl"><%= election.title %></h1>
+            <a href="/login" class="text-green-500 hover:text-green-800">Sign in to edit.</a>
+            <br><br>
+            <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                        <li> <%= messages.error[i] %></li>
+                <% } %>
+                <% } %>
+            <h2 class="text-xl">Questions: </h2>
+            <% if (questions && questions !== null && questions.length > 0) { %>
+                <list>
+                    <% for (var i = 0; i < questions.length; i++) { %>
+                        <li>
+                            <a href="/election/<%= election.id %>/question/<%= questions[i].id %>"
+                                class="text-green-500 hover:text-green-800">
+                                <%= questions[i].title %>
+                            </a>
+                        </li>
+                    <% } %>
+                </list>
+            <% } else { %>
+                <p>No questions yet.</p>
+            <% } %>
+            <br>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>Create Election</title>
+</head>
+
+<body>
+    <div class="grid grid-cols-6">
+        <div class="col-start-3 col-span-2">
+            <%- include('../header.ejs') %>
+            <ol class="flex list-none">
+                <li class="mr-6">
+                    <a class="text-green-500 hover:text-green-800" href="/dashboard">Home ></a>
+                </li>
+                <li class="mr-6">
+                    <a class="text-green-500 hover:text-green-800" href="/election/<%= election.id %>">Election#<%= election.id %></a>
+                </li>
+            </ol>
+            <br>
+            <h1 class="text-2xl"><%= election.title %></h1>
+            <br>
+            <% if(messages && messages.error && messages.error.length > 0)  { %>
+                <br>
+                <% for(var i=0; i<messages.error.length; i++) { %>
+                        <li> <%= messages.error[i] %></li>
+                <% } %>
+                <br>
+            <% } %>
+            <% if (election.is_live) { %>
+                <h2 class="text-lg">This election has launched, and voters can access this URL:</h2>
+                <!-- DOMAIN/elections/1/vote -->
+                <a class="text-lg text-green-500 hover:text-green-800" href="<%= domain %>/elections/<%= election.id %>"><%= domain %>/elections/<%= election.id %></a>
+                <br><br>
+            <% } %>
+            <h2 class="text-xl">Questions: </h2>
+            <% if (questions && questions !== null && questions.length > 0) { %>
+                <ul class="list-none">
+                    <% for (var i = 0; i < questions.length; i++) { %>
+                        <li class="has-trash-icon">
+                            <div class="flex w-fit my-2 px-2 py-1 items-center rounded hover:bg-purple-50">
+                                <a href="/election/<%= election.id %>/question/<%= questions[i].id %>"
+                                    class="text-green-500 hover:text-green-800">
+                                    → <%= questions[i].title %>
+                                </a>
+                                <a href="#" onclick="removeQuestion(<%= questions[i].id %>)" class="ml-2 hidden trash-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg></a>
+                            </div>
+                        </li>
+                    <% } %>
+                </ul class="list-none">
+            <% } else { %>
+                <p>No questions yet.</p>
+            <% } %>
+            <form action="/election/<%= election.id %>/question" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="flex gap-2 py-4">
+                    <div class="flex-auto">
+                        <input type="text" class="border border-gray-300 text-gray-900 w-full rounded p-2 text-sm"
+                            name="question" id="name" placeholder="Enter question?" required>
+                    </div>
+                    <div class="flex-none">
+                        <!-- long description -->
+                        <textarea name="description" id="description" cols="30" rows="1"
+                            class="border border-gray-300 text-gray-900 w-full rounded p-2 text-sm"
+                            placeholder="Enter description"></textarea>
+                    </div>
+                    <div class="flex-none">
+                        <button type="submit"
+                            class="bg-green-600 text-white px-5 py-2 rounded font-medium mr-2 mb py-1.5">Add Question</button>
+                    </div>
+                </div>
+            </form>
+            <br>
+            <h2 class="text-xl">Candidates:</h2>
+            <% if (candidates && candidates !== null && candidates.length > 0) { %>
+                <list>
+                    <% for (var i = 0; i < candidates.length; i++) { %>
+                        <li>
+                            <a href="/election/<%= election.id %>/candidate/<%= candidates[i].id %>"
+                                class="text-green-500 hover:text-green-800">
+                                <%= candidates[i].name %>
+                            </a>
+                        </li>
+                    <% } %>
+                </list>
+            <% } else { %>
+                <p>No candidates yet.</p>
+            <% } %>
+            <a href="/election/<%= election.id %>/candidate/create" class="text-green-500 hover:text-green-800">Add
+                candidate</a>
+            <br>
+            <br>
+            <a href="/election/<%= election.id %>/results" class="text-green-500 hover:text-green-800">Preview
+                Results</a>
+            <br>
+            <% if (!election.is_live) { %>
+            <form action="/election/<%= election.id %>/launch" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Launch
+                    Election</button>
+            </form>
+            <% } else { %>
+                <form action="/election/<%= election.id %>/end" method="POST">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">End
+                        Election</button>
+                </form>
+            <% } %> 
+            <br>
+        </div>
+    </div>
+    <script>
+        var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        function removeQuestion(id) {
+            if (confirm("Are you sure you want to delete this question?")) {
+                fetch('/election/<%= election.id %>/question/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        _csrf: csrfToken
+                    })
+                })
+                .then(res => {
+                    if (res.status === 200) {
+                        window.location.reload();
+                    }
+                })
+            }
+        }                        
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+body {
+  font-family: sans-serif;
+  background: white;
+}
+
+.has-trash-icon:hover .trash-icon {
+  display: block;
+}
